@@ -1,5 +1,5 @@
 config:
-  target: 'https://7hx42u5rd7.execute-api.us-east-1.amazonaws.com/dev'
+  target: 'https://xxxxxxxx.amazonaws.com/dev'
   phases:
     - duration: 60
       arrivalRate: 20
