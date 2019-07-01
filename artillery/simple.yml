@@ -1,0 +1,19 @@
+config:
+  target: 'https://xzxzu539rj.execute-api.us-east-1.amazonaws.com/dev'
+  phases:
+    - duration: 60
+      arrivalRate: 20
+  payload:
+    path: "pizza-order.csv"
+    fields:
+      - "name"
+      - "address"
+      - "pizzas"
+scenarios:
+  - flow:
+    - post:
+        url: "/order"
+        json:
+          name: "{{ name }}"
+          address : "{{ address }}"
+          pizzas: "{{ pizzas }}"

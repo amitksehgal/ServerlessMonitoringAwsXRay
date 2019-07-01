@@ -1,0 +1,93 @@
+service: serverless-sampleapp
+
+plugins:
+  - serverless-plugin-tracing
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+
+  environment:
+    REGION: ${self:provider.region}
+    PENDING_ORDER_QUEUE:
+      Ref: PendingOrdersQueue
+    PENDING_ORDER_QUEUE_NAME: PendingOrdersQueue-dev
+    COMPLETED_ORDER_TABLE: CompletedOrderTable-dev
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sqs:SendMessage"
+      Resource: "arn:aws:sqs:${self:provider.region}:*:${self:provider.environment.PENDING_ORDER_QUEUE_NAME}"
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:GetItem"
+        - "dynamodb:PutItem"
+        - "dynamodb:UpdateItem"
+        - "dynamodb:DeleteItem"
+      Resource:
+        - "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.COMPLETED_ORDER_TABLE}"
+    - Effect: "Allow"
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
+
+functions:
+  makeOrder:
+    handler: handler.makeOrder
+    tracing: true
+    events:
+      - http:
+          method: post
+          path: order
+  prepareOrder:
+    handler: handler.prepareOrder
+    tracing: true
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - PendingOrdersQueue
+              - Arn
+          batchSize: 1
+  sendOrder:
+    handler: handler.sendOrder
+    tracing: true
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 1
+          startingPosition: LATEST
+          arn:
+            Fn::GetAtt:
+              - CompletedOrdersTable
+              - StreamArn
+  checkOrderStatus:
+    handler: handler.checkOrderStatus
+    tracing: true
+    events:
+      - http:
+          method: get
+          path: order/{orderId}
+
+resources:
+  Resources:
+    PendingOrdersQueue:
+      Type: "AWS::SQS::Queue"
+      Properties:
+        QueueName: ${self:provider.environment.PENDING_ORDER_QUEUE_NAME}
+    CompletedOrdersTable:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: "orderId"
+          AttributeType: "S"
+        KeySchema:
+        - AttributeName: "orderId"
+          KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.COMPLETED_ORDER_TABLE}
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
