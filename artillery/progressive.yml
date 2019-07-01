@@ -1,5 +1,5 @@
 config:
-  target: 'https://7hx42u5rd7.execute-api.us-east-1.amazonaws.com/dev'
+  target: 'https://xxxxxxx.amazonaws.com/dev'
   phases:
     - duration: 60
       arrivalRate: 10
@@ -17,7 +17,7 @@ config:
 scenarios:
   - flow:
     - post:
-        url: "/pedido"
+        url: "/order"
         json:
           name: "{{ name }}"
           address : "{{ address }}"
@@ -27,4 +27,4 @@ scenarios:
           as: "orderId"
     - think: 10
     - get:
-        url: "/pedido/{{ orderId }}"
+        url: "/order/{{ orderId }}"
