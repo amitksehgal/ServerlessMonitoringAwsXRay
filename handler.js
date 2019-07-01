@@ -6,7 +6,7 @@ const AWS = require('aws-sdk');
 //const awsXRay = require('aws-xray-sdk');
 //const AWS = awsXRay.captureAWS(require('aws-sdk'));
 
-const orderMetadataManager = require('./orderMetadataManager');
+const orderMetadataManager = require('./orderManager');
 
 var sqs = new AWS.SQS({ region: process.env.REGION });
 const QUEUE_URL = process.env.PENDING_ORDER_QUEUE;
@@ -65,7 +65,7 @@ module.exports.sendOrder = (event, context, callback) => {
 
 	const record = event.Records[0];
 	if (record.eventName === 'INSERT') {
-		console.log('deliverOrder');
+		console.log('Order is delivered');
 
 		const orderId = record.dynamodb.Keys.orderId.S;
 
@@ -79,7 +79,7 @@ module.exports.sendOrder = (event, context, callback) => {
 				callback(error);
 			});
 	} else {
-		console.log('is not a new record');
+		console.log('This record is not a new record.');
 		callback();
 	}
 };
@@ -91,7 +91,7 @@ module.exports.checkOrderStatus = (event, context, callback) => {
 		orderMetadataManager
 			.getOrder(orderId)
 			.then(order => {
-				sendResponse(200, `The status of the order: ${orderId} is ${order.delivery_status}`, callback);
+				sendResponse(200, 'The status of the order: ${orderId} is ${order.delivery_status}', callback);
 			})
 			.catch(error => {
 				sendResponse(500, 'There is an error occured while processing the order', callback);
