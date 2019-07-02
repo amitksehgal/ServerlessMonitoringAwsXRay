@@ -1,8 +1,8 @@
 'use strict';
 
-const AWS = require('aws-sdk');
-//const awsXRay = require('aws-xray-sdk');
-//const AWS = awsXRay.captureAWS(require('aws-sdk'));
+//const AWS = require('aws-sdk');
+const awsXRay = require('aws-xray-sdk');
+const AWS = awsXRay.captureAWS(require('aws-sdk'));
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
 module.exports.saveCompletedOrder = order => {
