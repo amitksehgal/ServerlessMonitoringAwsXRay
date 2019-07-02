@@ -13,3 +13,18 @@ This application has following components
   - checkOrderStatus: This lambda will check the current status of the order by quering in the DynamoDB using OrderId
 - DynamoDB: A table will be created for storing the orders details
 - Simple Queue Service (SQS): For storing the orders details for implementing async flow
+
+For monitoring serverless application, I have used the AWS X-Ray service and for that I have used the [serverless-plugin-tracing](https://www.npmjs.com/package/serverless-plugin-tracing) plugin. 
+
+To install plugin in your application
+  
+  `npm install --save-dev serverless-plugin-tracing`
+  
+To use this plugin for monitoring, you need to enable capturing traces in the code as well:
+  
+  `const awsXRay = require('aws-xray-sdk');  
+  const awsSdk = awsXRay.captureAWS(require('aws-sdk'));`
+
+The plugin only controls the checkbox that be viewed in AWS Console: 
+*go to AWS Lambda -> select a Lambda function -> Configuration tab -> Advanced settings -> "Enable active tracing"*
+If tracing ends up being true for a function, the checkbox will be checked for that function.
