@@ -7,7 +7,7 @@ This is a simple serverless application which serves two purpose.
 
 **Architecture of application**
 
-![architecture](https://serverless-architecture-1.s3.amazonaws.com/architecture.png)
+![architecture](https://architectureserverless.s3.amazonaws.com/architecture.png)
 
 
 
